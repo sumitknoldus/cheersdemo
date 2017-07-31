@@ -1,0 +1,7 @@
+<!DOCTYPE cheers [
+        <!ELEMENT cheers (input,output)>
+        <!ELEMENT input (alpha, radius)>
+        <!ELEMENT alpha (#PCDATA)>
+        <!ELEMENT radius (#PCDATA)>
+        <!ELEMENT output (#PCDATA)>
+        ]>

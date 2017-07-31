@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE cheers SYSTEM "cheers.dtd">
+<cheers>
+	<input>
+		<radius>40</radius>
+		<alpha>2.31</alpha>
+	</input>
+	<output>47.69</output>
+</cheers>

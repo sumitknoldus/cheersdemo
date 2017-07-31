@@ -3,6 +3,9 @@ import math
 import logging
 import pdb
 import sys
+from decimal import Decimal, getcontext
+from xml.etree import ElementTree, cElementTree
+from xml.dom import minidom
 
 x = 2.31
 
@@ -16,9 +19,19 @@ class MathMethod:
         return math.cos(r)
     
     
-    def get_pi(self, r):
-        return math.pi
-     
+    def get_pi(self):
+        '''
+        Bailey–Borwein–Plouffe formula
+        '''
+        getcontext().prec=100
+        pi = sum(1/Decimal(16)**k * 
+                   (Decimal(4)/(8*k+1) - 
+                    Decimal(2)/(8*k+4) - 
+                    Decimal(1)/(8*k+5) -
+                    Decimal(1)/(8*k+6)) for k in range(100))
+        
+        return round(pi,4)
+    
         
     def convert_degree_radian(self, d):
         return math.radians(d)
@@ -30,7 +43,24 @@ class MathMethod:
 
 class Incarnation2:
     _math_method = MathMethod()
-    
+
+    def writexml(self, out, radiusValue, alphaValue, outputValue):
+        cheers = ElementTree.Element('cheers')
+        input = ElementTree.SubElement(cheers, 'input')
+        output = ElementTree.SubElement(cheers, 'output')
+        radius = ElementTree.SubElement(input, 'radius')
+        alpha = ElementTree.SubElement(input, 'alpha')
+        radius.text = str(radiusValue)
+        alpha.text = str(alphaValue)
+        output.text = str(outputValue)
+        # tree = cElementTree.ElementTree(cheers) # wrap it in an ElementTree instance, and save as XML
+        prettyOutput = minidom.parseString(ElementTree.tostring(
+            cheers)).toprettyxml()  # Since ElementTree write() has no pretty printing support, used minidom to beautify the xml.
+        finalTree = ElementTree.ElementTree(ElementTree.fromstring(prettyOutput))
+        finalTree.write(out, encoding='utf-8', xml_declaration=False)
+
+
+
     def find_alpha(self):
         '''
         x - sinx = pi/2
@@ -78,11 +108,18 @@ if __name__ == "__main__":
                         datefmt='%Y-%m-%d %Hh %Mm %Ss')
 
     logging.info("start the process")
-    
-    while True:
-        try:
+    _incarnationObj = Incarnation2()
+    outputStream = open("out.xml", "wb")
+    header = str('<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE cheers SYSTEM "cheers.dtd">\n')
+    outputStream.write(str.encode(header))
+    #while True:
+    try:
             r = input("Please enter the value of radius: ") 
-            l = round(Incarnation2().get_length_of_segment(float(r)),2)
+            l = round(_incarnationObj.get_length_of_segment(float(r)),2)
             print("length of segment of coasters: "+str(l)+ " whose radius "+ str(r))
-        except Exception as e:
+            _incarnationObj.writexml(outputStream, r, x, l)
+
+    except Exception as e:
             print("please enter the valid input")
+            print(e)
+            outputStream.close()
